@@ -6,51 +6,60 @@ class Questions extends Component {
     score: 0,
     count: 0,
     progress: 5,
+    attempted: 0,
   };
 
   onAnswerSelect = (value) => {
-    let { count, score } = this.state;
+    let { count, score, attempted } = this.state;
     var buttons = document.querySelectorAll('.options');
     var add = (1 / questions.length) * 100;
+    this.setState({ attempted: attempted + 1 });
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = true;
+    }
     if (value === decodeURIComponent(questions[count].correct_answer)) {
       this.setState({ score: score + add });
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].disabled = true;
+      if (count + 1 === 20) {
+        document.getElementById('output').innerHTML =
+          '<h2>Correct!</h2><h2>Quiz Completed!</h2>';
+      } else {
+        document.getElementById('output').innerHTML = '<h2>Correct!</h2>';
+        document.getElementById('next').style.display = 'block';
       }
-      document.getElementById('output').innerHTML = '<h2>Correct!</h2>';
-      document.getElementById('next').style.display = 'block';
     } else {
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].disabled = true;
+      if (count + 1 === 20) {
+        document.getElementById('output').innerHTML =
+          '<h2>Incorrect!</h2><h2>Quiz Completed!</h2>';
+      } else {
+        document.getElementById('output').innerHTML = '<h2>Incorrect!</h2>';
+        document.getElementById('next').style.display = 'block';
       }
-      document.getElementById('output').innerHTML = '<h2>Incorrect!</h2>';
-      document.getElementById('next').style.display = 'block';
     }
   };
 
   nextQuestion = () => {
     let { count, progress } = this.state;
     var buttons = document.querySelectorAll('.options');
-    let check = count + 1;
-    if (check < questions.length) {
-      this.setState({ count: ++count });
-      document.getElementById('next').style.display = 'none';
-      for (let i = 0; i < buttons.length; i++) {
-        buttons[i].disabled = false;
-      }
-      this.setState({ progress: progress + 5 });
-      document.getElementById('output').innerHTML = '';
-    } else {
+    this.setState({ count: ++count });
+    document.getElementById('next').style.display = 'none';
+    document.getElementById('output').innerHTML = '';
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].disabled = false;
+    }
+    this.setState({ progress: progress + 5 });
+    if (count + 1 === 20) {
       document.getElementById('next').disabled = true;
+    } else {
+      document.getElementById('output').innerHTML = '';
     }
   };
 
   render() {
-    const { count, score, progress } = this.state;
+    const { count, score, progress, attempted } = this.state;
 
     var add = (1 / questions.length) * 100;
 
-    var maxScore = questions.length - (count + 1);
+    var maxScore = questions.length - attempted;
     maxScore = maxScore * add + score;
 
     var minScore = (score / 100) * 100;
